@@ -20,8 +20,12 @@ export function AdBanner() {
   }, []);
 
   return (
-    <div className="w-full bg-neutral-900/50 backdrop-blur-sm p-2 sm:p-3 flex items-center justify-center">
-      <div id="container-20df35551593985326b4926cceef35ee" className="w-full max-w-full" />
+    <div className="w-full bg-neutral-900/30 backdrop-blur-sm py-1 px-2 flex items-center justify-center border-t border-neutral-800">
+      <div
+        id="container-20df35551593985326b4926cceef35ee"
+        className="w-full max-w-2xl overflow-hidden"
+        style={{ maxHeight: '60px' }}
+      />
     </div>
   );
 }

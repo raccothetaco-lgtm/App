@@ -102,18 +102,6 @@ export default function App() {
 
   const settlements = gameState === 'settlement' ? calculateSettlements() : [];
 
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = 'https://pl29652957.effectivecpmnetwork.com/74/80/4a/74804a83f8126a0790cd1bf05242d94e.js';
-    document.head.appendChild(script);
-
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, []);
-
   return (
     <div className="size-full bg-neutral-950 text-neutral-50 flex flex-col overflow-hidden">
       <div className="flex-1 flex items-center justify-center p-4 overflow-auto pb-0">
