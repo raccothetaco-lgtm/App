@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Users, Plus, DollarSign, ArrowRight, Check, ArrowLeftRight, Spade } from 'lucide-react';
+import { Users, Plus, DollarSign, ArrowRight, Check, ArrowLeftRight, Share2 } from 'lucide-react';
 import { AdBanner } from './components/AdBanner';
 
 type Player = {
@@ -36,6 +36,7 @@ export default function App() {
   const [newPlayerName, setNewPlayerName] = useState('');
   const [contributionAmount, setContributionAmount] = useState('');
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
+  const [shareText, setShareText] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 2800);
@@ -525,6 +526,36 @@ export default function App() {
                     </div>
 
                     <button
+                      onClick={() => {
+                        const lines = settlements.length === 0
+                          ? ['🃏 Poker Pal — No settlements needed, everyone is even!']
+                          : ['🃏 Poker Pal Settlement Results', '', ...settlements.map(s => `${s.from} → ${s.to}: $${s.amount.toFixed(2)}`)];
+                        const text = lines.join('\n');
+                        if (navigator.share) {
+                          navigator.share({ title: 'Poker Pal Settlement', text }).catch(() => setShareText(text));
+                        } else if (navigator.clipboard?.writeText) {
+                          navigator.clipboard.writeText(text).catch(() => setShareText(text));
+                        } else {
+                          setShareText(text);
+                        }
+                      }}
+                      className="w-full rounded-xl px-6 py-4 flex items-center justify-center gap-2 transition-all duration-200"
+                      style={{
+                        background: 'linear-gradient(135deg, #0d8f5f, #10b981)',
+                        color: '#ffffff',
+                        fontFamily: "'Playfair Display', serif",
+                        fontWeight: 700,
+                        fontSize: '1rem',
+                        letterSpacing: '0.02em',
+                        boxShadow: '0 0 24px rgba(16, 185, 129, 0.3)',
+                        border: '1px solid rgba(16, 185, 129, 0.4)',
+                      }}
+                    >
+                      <Share2 className="w-4 h-4" />
+                      Share Results
+                    </button>
+
+                    <button
                       onClick={() => { setGameState('playing'); setPlayers([]); localStorage.removeItem('pokerpal_players'); localStorage.removeItem('pokerpal_gamestate'); }}
                       className="w-full rounded-xl px-6 py-4 transition-all duration-200"
                       style={{
@@ -553,6 +584,57 @@ export default function App() {
         </AnimatePresence>
       </div>
       <AdBanner />
+
+      <AnimatePresence>
+        {shareText && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setShareText(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.92, y: 16 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.92, y: 16 }}
+              onClick={e => e.stopPropagation()}
+              className="w-full max-w-sm rounded-2xl p-5 space-y-4"
+              style={{
+                background: '#0d1117',
+                border: '1px solid rgba(212,168,67,0.2)',
+                boxShadow: '0 24px 60px rgba(0,0,0,0.7)',
+              }}
+            >
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, color: '#d4a843', fontSize: '1.1rem' }}>
+                Share Results
+              </h3>
+              <textarea
+                readOnly
+                value={shareText}
+                rows={Math.min(shareText.split('\n').length + 1, 10)}
+                onFocus={e => e.target.select()}
+                className="w-full rounded-lg p-3 text-sm resize-none focus:outline-none"
+                style={{
+                  background: '#06080a',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  color: '#f0ede8',
+                  fontFamily: "'JetBrains Mono', monospace",
+                }}
+              />
+              <p className="text-xs" style={{ color: '#7a8a8a' }}>Select all and copy, then paste into your group chat.</p>
+              <button
+                onClick={() => setShareText(null)}
+                className="w-full rounded-xl py-3 transition-all"
+                style={{ background: '#131a1f', border: '1px solid rgba(255,255,255,0.06)', color: '#7a8a8a' }}
+              >
+                Done
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
